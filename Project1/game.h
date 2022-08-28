@@ -21,6 +21,7 @@ ALLEGRO_TIMER* timer;
 
 size_t dist;//distance var
 float angle = 0;//angle of player
+float p_angle = 0;
 void m_setup() {
 	//initialize stuff
 	al_init();
@@ -31,7 +32,7 @@ void m_setup() {
 	//set up game screen, event queue, and timer
 	 display = al_create_display(1000, 1000);
 	 event_queue = al_create_event_queue();
-	 timer = al_create_timer(1.0 / 60.0);
+	 timer = al_create_timer(1.0 / 30.0);
 	 //register stuff
 	 al_start_timer(timer);
 	 al_register_event_source(event_queue, al_get_display_event_source(display));
@@ -65,12 +66,31 @@ float distance(struct point p1, struct point p2) {
 }
 struct point temp_ret(struct point p1, struct point p2) {
 	struct point temp;
-	temp.x = p1.x + (cosf(angle) * dist);
-	temp.y = p1.y + (sinf(angle) * dist);
+	//define pangle
+	if (p2.x - p1.x == 0) {
+		return;
+	}
+	if (p2.y - p1.y == 0) {
+		return;
+	}
+
+	p_angle = atanf(
+		(p2.y - p1.y) / (p2.x - p1.x)
+	);
+
+	temp.x = p1.x + (cosf(angle+p_angle) * dist);
+	temp.y = p1.y + (sinf(angle+p_angle) * dist);
 	return temp;
 };
+//key enums
+
+enum {
+	a_left, a_right, w, a, s, d
+
+};
+
 //input function 
-void input(bool keys[2]) {
+void input(bool keys[6]) {
 	ALLEGRO_EVENT ev;
 	al_wait_for_event(event_queue, &ev);
 	
@@ -83,36 +103,61 @@ void input(bool keys[2]) {
 			switch (ev.keyboard.keycode)
 			{
 			case ALLEGRO_KEY_E:
-				keys[0] = true;
+				keys[a_left] = true;
 				break;
 			case ALLEGRO_KEY_Q:
-				keys[1] = true;
+				keys[a_right] = true;
 				break;
+			case ALLEGRO_KEY_W:
+				keys[w] = true;
+				break;
+			case ALLEGRO_KEY_A:
+				keys[a] = true;
+			break; 
+			case ALLEGRO_KEY_S:
+				keys[s] = true;
+				break;
+			case ALLEGRO_KEY_D:
+				keys[d] = true;
+				break;
+
 			}
-
-
-
+			
 		}
+
+
+		
 		if (ev.type == ALLEGRO_EVENT_KEY_UP) {
 			switch (ev.keyboard.keycode)
 			{
 			case ALLEGRO_KEY_E:
-				keys[0] = false;
+				keys[a_left] = false;
 				break;
 			case ALLEGRO_KEY_Q:
-				keys[1] = false;
+				keys[a_right] = false;
 				break;
+			case ALLEGRO_KEY_W:
+				keys[w] = false;
+				break;
+			case ALLEGRO_KEY_A:
+				keys[a] = false;
+				break;
+			case ALLEGRO_KEY_S:
+				keys[s] = false;
+				break;
+			case ALLEGRO_KEY_D:
+				keys[d] = false;
+				break;
+
 			}
 		}
 		if (ev.type == ALLEGRO_EVENT_TIMER) {
-			if (keys[0] == true)angle-=0.5;
-			else {
-
-			}
-			if (keys[1] == true)angle+=0.5;
-			else {
-
-			}
+			if (keys[0] == true)angle-=0.1;
+			if (keys[1] == true)angle+=0.1;
+			if (keys[w] == true) player.y += 5;
+			if (keys[a] == true)player.x -= 5;
+			if (keys[s] == true)player.y -= 5;
+			if (keys[d] == true)player.x += 5;
 			//variable editing 
 			if (angle >= 360) {
 				angle = 0;
@@ -121,8 +166,9 @@ void input(bool keys[2]) {
 				angle = 359;
 			}
 		}
-}
 
+
+}
 
 // IDEA IDEA IDEA IDEA IDEA IDEA IDEA IDEA IDEA IDEA IDEA IDEA IDEA
 /*
