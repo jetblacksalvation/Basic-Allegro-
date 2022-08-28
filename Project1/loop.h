@@ -10,10 +10,7 @@ void main_loop() {
 	bool _exit = false;
 	bool keys[6] = {false,false,false,false,false,false};
 	while (_exit == false) {
-		
-		
 		input(keys);
-
 
 		dist = distance(player, object);
 		projection =  temp_ret(player, object);//assign the values of shape to projection 

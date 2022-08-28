@@ -15,11 +15,13 @@
 ALLEGRO_DISPLAY* display;
 ALLEGRO_EVENT_QUEUE* event_queue;
 ALLEGRO_TIMER* timer;
+ALLEGRO_TRANSFORM camera_transform;
+ALLEGRO_STATE previous_state;
 
 //calculation variables
 
 
-size_t dist;//distance var
+float dist;//distance var
 float angle = 0;//angle of player
 float p_angle = 0;
 void m_setup() {
@@ -39,7 +41,8 @@ void m_setup() {
 	 al_register_event_source(event_queue, al_get_timer_event_source(timer));
 	 al_register_event_source(event_queue, al_get_keyboard_event_source());
 
-
+	 al_store_state(&previous_state, ALLEGRO_STATE_TRANSFORM);
+	 
 }
 /*
 *  COLORS * COLORS * COLORS * COLORS * COLORS * COLORS * COLORS * COLORS * COLORS * COLORS * COLORS * COLORS * COLORS * COLORS * COLORS * 
@@ -52,7 +55,7 @@ ALLEGRO_COLOR red = { 255.f,0.f,0.f,0.f };
 //point struct 
 
 struct point{
-	int x ,y;
+	float x ,y;
 }player = { 500,500 };
 struct point object = { 750,750 };
 
@@ -67,19 +70,23 @@ float distance(struct point p1, struct point p2) {
 struct point temp_ret(struct point p1, struct point p2) {
 	struct point temp;
 	//define pangle
-	if (p2.x - p1.x == 0) {
-		return;
-	}
-	if (p2.y - p1.y == 0) {
-		return;
-	}
-
-	p_angle = atanf(
-		(p2.y - p1.y) / (p2.x - p1.x)
+	//
+	dist = distance(p1, p2);
+	p_angle = atan2(
+		(p2.y - p1.y), (p2.x - p1.x)
 	);
-
-	temp.x = p1.x + (cosf(angle+p_angle) * dist);
-	temp.y = p1.y + (sinf(angle+p_angle) * dist);
+	//if (p2.x > p1.x) {
+	//	
+		
+	//	p_angle = 180;
+	//	temp.x = p1.x - (cosf( angle) *dist);
+	//	temp.y = p1.y -(sinf( angle) *dist);
+	//	return temp;
+	//}
+	
+	
+	temp.x = p1.x + (cosf(angle)*dist );
+	temp.y = p1.y + (sinf(angle) *dist);
 	return temp;
 };
 //key enums
@@ -120,7 +127,7 @@ void input(bool keys[6]) {
 			case ALLEGRO_KEY_D:
 				keys[d] = true;
 				break;
-
+			
 			}
 			
 		}
@@ -158,12 +165,22 @@ void input(bool keys[6]) {
 			if (keys[a] == true)player.x -= 5;
 			if (keys[s] == true)player.y -= 5;
 			if (keys[d] == true)player.x += 5;
+			printf("%f is angle \n", angle);
+			printf("%f is p_angle\n", p_angle);
 			//variable editing 
+			al_build_transform(&camera_transform, -player.x + 500, -player.y + 500, 1, 1, 0);
+			al_use_transform(&camera_transform);
 			if (angle >= 360) {
 				angle = 0;
 			}
 			if (angle < 0) {
 				angle = 359;
+			}
+			if (p_angle >= 360) {
+				p_angle = 0;
+			}
+			if (p_angle < 0) {
+				p_angle = 359;
 			}
 		}
 
